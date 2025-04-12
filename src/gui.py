@@ -14,9 +14,9 @@ class RenamergedGUI:
     def __init__(self, root):
         self.root = root
         self.root.title("RENAMERGED - Rename & Merge PDFs")
-        self.root.geometry("700x800")
+        self.root.geometry("900x800")
         self.root.resizable(True, True)
-        self.root.minsize(700, 800)
+        self.root.minsize(900, 800)
 
         # Inisialisasi tema
         self.theme = Theme()
