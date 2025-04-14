@@ -1,12 +1,13 @@
 import customtkinter as ctk
-import threading
-import os  # Tambahkan impor os
+import tkinter as tk
+import os
+import time
 from tkinter import messagebox
-from src.pdf_processor import process_pdfs as process_pdfs_merge
-from src.pdf_processor_rename import process_pdfs as process_pdfs_rename
+from src.pdf.pdf_processor import process_pdfs as process_pdfs_merge
+from src.pdf.pdf_processor_rename import process_pdfs as process_pdfs_rename
 
 class ProcessButtonComponent:
-    def __init__(self, parent, colors, input_path_var, output_path_var, mode_var, settings, progress_var, progress_percentage_var, stats_component, output_location_component):
+    def __init__(self, parent, colors, input_path_var, output_path_var, mode_var, settings, progress_var, progress_percentage_var, statistics, output_location, mode_selection, gui):
         self.parent = parent
         self.colors = colors
         self.input_path_var = input_path_var
@@ -15,94 +16,87 @@ class ProcessButtonComponent:
         self.settings = settings
         self.progress_var = progress_var
         self.progress_percentage_var = progress_percentage_var
-        self.stats_component = stats_component
-        self.output_location_component = output_location_component
+        self.statistics = statistics
+        self.output_location = output_location
+        self.mode_selection = mode_selection
+        self.gui = gui  # Referensi ke instance RenamergedGUI
 
         # Tombol Proses
         self.process_btn = ctk.CTkButton(self.parent, text="Proses", command=self.process,
                                          fg_color="#1E3A8A", text_color="#FFFFFF",
                                          font=("Roboto", 12, "bold"), hover_color="#3B82F6",
-                                         width=120, height=40, border_width=0, corner_radius=15)
+                                         width=120, height=35, border_width=0, corner_radius=15)
         self.process_btn.grid(row=14, column=0, columnspan=2, pady=20)
 
     def process(self):
         input_dir = self.input_path_var.get()
         output_dir = self.output_path_var.get()
+        mode = self.mode_var.get()
 
-        if not input_dir:
-            messagebox.showerror("Error", "Silakan pilih folder input!")
+        # Validasi input
+        if not input_dir or not isinstance(input_dir, str):  # Periksa apakah input_dir kosong atau bukan string
+            messagebox.showerror("Error", "Pilih folder input terlebih dahulu!")
             return
-
         if not os.path.isdir(input_dir):
-            messagebox.showerror("Error", "Folder input tidak valid!")
+            messagebox.showerror("Error", "Folder input tidak valid! Pilih folder yang benar.")
             return
 
-        pdf_files = [f for f in os.listdir(input_dir) if f.endswith('.pdf')]
-        if not pdf_files:
-            messagebox.showerror("Error", "Folder yang dipilih tidak berisi file PDF!")
-            return
+        # Perbarui pengaturan dengan urutan komponen dari mode_selection
+        self.settings["component_order"] = self.mode_selection.get_component_order()
 
-        if output_dir and not os.path.isdir(output_dir):
-            try:
-                os.makedirs(output_dir, exist_ok=True)
-            except Exception as e:
-                messagebox.showerror("Error", f"Gagal membuat folder output: {str(e)}")
-                return
-
-        self.process_btn.configure(state="disabled")
-        self.progress_var.set(0.0)
+        # Reset statistik dan progress bar
+        self.statistics.reset()
+        self.progress_var.set(0)
         self.progress_percentage_var.set("0%")
-        self.stats_component.reset_stats()
+        self.gui.progress_bar.set_progress(0)  # Set progress bar ke 0
+        self.parent.update_idletasks()  # Pastikan UI diperbarui
 
-        def run_process():
-            weight_reading = 0.40
-            weight_processing = 0.50
-            weight_finalizing = 0.10
+        # Jalankan proses sesuai mode
+        try:
+            if mode == "Rename dan Merge":
+                total, renamed, merged, errors = process_pdfs_merge(input_dir, output_dir, self.progress_callback, self.log_callback, self.settings)
+            else:  # Rename Saja
+                total, renamed, merged, errors = process_pdfs_rename(input_dir, output_dir, self.progress_callback, self.log_callback, self.settings)
 
-            current_progress = 0.0
+            # Update statistik
+            self.statistics.update_statistics(total, renamed, merged, errors)
+            self.output_location.set_output_path(output_dir)
 
-            def progress_callback(stage, processed, total):
-                nonlocal current_progress
-                if stage == "reading":
-                    current_progress = weight_reading * (processed / total)
-                elif stage == "processing":
-                    current_progress = weight_reading + weight_processing * (processed / total)
-                elif stage == "finalizing":
-                    current_progress = weight_reading + weight_processing + weight_finalizing * (processed / total if total > 0 else 1.0)
+        except Exception as e:
+            messagebox.showerror("Error", f"Terjadi kesalahan: {str(e)}")
 
-                self.progress_var.set(current_progress)
-                self.progress_percentage_var.set(f"{int(current_progress * 100)}%")
-                self.parent.update_idletasks()
+    def log_callback(self, message):
+        if self.statistics:
+            self.statistics.log_message(message)
 
-            # Siapkan pengaturan dengan nilai boolean biasa
-            processed_settings = {
-                "mode": self.mode_var.get(),
-                "use_name": self.settings["use_name"].get(),
-                "use_date": self.settings["use_date"].get(),
-                "use_reference": self.settings["use_reference"].get(),
-                "use_faktur": self.settings["use_faktur"].get()
-            }
+    def progress_callback(self, stage, current, total_files, total_to_merge, total_to_finalize):
+        # Hitung persentase dalam skala 0 hingga 100
+        if stage == "reading":
+            percentage = (current / total_files) * 40  # 40% untuk tahap membaca
+        elif stage == "processing":
+            percentage = 40 + (current / total_to_merge) * 40  # 40% untuk tahap pemrosesan (merge)
+        else:  # finalizing
+            percentage = 80 + (current / total_to_finalize) * 20  # 20% untuk tahap finalisasi
 
-            # Pilih fungsi pemrosesan berdasarkan mode
-            if self.mode_var.get() == "Rename Saja":
-                process_func = process_pdfs_rename
-            else:
-                process_func = process_pdfs_merge
+        # Pastikan persentase berada dalam skala 0 hingga 100
+        percentage = min(max(percentage, 0), 100)
 
-            total, renamed, merged, errors = process_func(input_dir, output_dir, progress_callback, None, processed_settings)
+        # Normalkan ke skala 0 hingga 1 untuk CTkProgressBar
+        normalized_progress = percentage / 100
 
-            self.stats_component.update_stats(total, renamed, merged, errors)
+        # Debugging: Log nilai progress
+        print(f"[Progress] Stage: {stage}, Current: {current}, Total Files: {total_files}, Total to Merge: {total_to_merge}, Total to Finalize: {total_to_finalize}, Percentage: {percentage}%, Normalized: {normalized_progress}")
 
-            if output_dir and output_dir.strip() != "":
-                final_output_path = output_dir
-            else:
-                final_output_path = os.path.join(input_dir, "ProcessedPDFs")
-            self.output_location_component.set_output_path(final_output_path)
+        # Update progress bar menggunakan metode set_progress
+        self.gui.progress_bar.set_progress(normalized_progress)
+        self.progress_var.set(normalized_progress)
+        self.progress_percentage_var.set(f"{int(percentage)}%")
+        self.parent.update_idletasks()  # Memaksa pembaruan UI untuk progress bar
+        self.parent.update()
 
-            self.process_btn.configure(state="normal")
-
-        threading.Thread(target=run_process).start()
+        # Tambahkan jeda kecil untuk memperlambat pembaruan visual
+        time.sleep(0.05)  # Jeda 50ms untuk memperlambat pembaruan
 
     def update_theme(self, colors):
         self.colors = colors
-        self.process_btn.configure(fg_color="#1E3A8A", text_color=self.colors["button_fg"], hover_color="#3B82F6")
+        self.process_btn.configure(fg_color="#1E3A8A", text_color="#FFFFFF", hover_color="#3B82F6")

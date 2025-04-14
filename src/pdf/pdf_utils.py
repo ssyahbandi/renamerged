@@ -2,7 +2,8 @@ import pdfplumber
 import re
 import os
 import shutil
-from src.utils import log_message, Fore
+from pypdf import PdfWriter  # Impor PdfWriter dari pypdf untuk menggabungkan PDF
+from src.utils.utils import log_message, Fore
 
 def validate_pdf(pdf_path):
     """Memvalidasi apakah file PDF dapat dibaca (tidak korup)."""
@@ -50,22 +51,39 @@ def extract_info_from_pdf(pdf_path, log_callback=None):
             log_callback(f"❌ Error membaca {os.path.basename(pdf_path)}: {str(e)}")
         raise
 
-def generate_filename(partner_name, faktur_number, date, reference, settings):
-    """Membuat nama file berdasarkan pengaturan kustom."""
+def generate_filename(partner_name, faktur_number, date, reference, settings, component_order=None):
+    """Membuat nama file berdasarkan urutan komponen dari GUI."""
+    # Ambil pengaturan checkbox
     use_name = settings.get("use_name", True)
     use_date = settings.get("use_date", True)
     use_reference = settings.get("use_reference", True)
     use_faktur = settings.get("use_faktur", True)
 
+    # Gunakan urutan komponen dari GUI
     parts = []
-    if use_name:
-        parts.append(partner_name)
-    if use_faktur:
-        parts.append(faktur_number)
-    if use_date:
-        parts.append(date)
-    if use_reference and reference:
-        parts.append(reference)
+    component_values = {
+        "Nama Lawan Transaksi": (partner_name, use_name),
+        "Tanggal Faktur Pajak": (date, use_date),
+        "Referensi": (reference, use_reference and reference),
+        "Nomor Faktur Pajak": (faktur_number, use_faktur)
+    }
+
+    # Gunakan urutan dari component_order jika ada, jika tidak gunakan urutan default
+    if component_order:
+        for component_name in component_order:
+            value, enabled = component_values.get(component_name, ("", False))
+            if enabled:
+                parts.append(value)
+    else:
+        # Urutan default jika component_order tidak ada
+        if use_name:
+            parts.append(partner_name)
+        if use_faktur:
+            parts.append(faktur_number)
+        if use_date:
+            parts.append(date)
+        if use_reference and reference:
+            parts.append(reference)
 
     if not parts:  # Jika tidak ada komponen yang dipilih, gunakan default nama "unnamed"
         parts.append("unnamed")
@@ -84,3 +102,16 @@ def copy_file_with_unique_name(source_path, destination_path, log_callback=None)
     shutil.copy(source_path, destination_path)
     log_message(f"📂 {os.path.basename(destination_path)} dipindahkan ke {os.path.dirname(destination_path)}", Fore.BLUE, log_callback=log_callback)
     return 1  # Mengembalikan jumlah file yang disalin (1)
+
+def merge_pdfs(pdf_paths, output_path, log_callback=None):
+    """Menggabungkan beberapa file PDF menjadi satu file."""
+    try:
+        merger = PdfWriter()
+        for pdf_path in pdf_paths:
+            merger.append(pdf_path)
+        merger.write(output_path)
+        merger.close()
+        log_message(f"✅ File digabungkan ke {output_path}", Fore.GREEN, log_callback=log_callback)
+    except Exception as e:
+        log_message(f"❌ Gagal merge {os.path.basename(output_path)}: {str(e)}", Fore.RED, log_callback=log_callback)
+        raise

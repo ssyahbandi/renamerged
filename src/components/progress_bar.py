@@ -1,35 +1,38 @@
 import customtkinter as ctk
 
 class ProgressBarComponent:
-    def __init__(self, parent, colors):
+    def __init__(self, parent, colors, progress_var, progress_percentage_var):
         self.parent = parent
         self.colors = colors
+        self.progress_var = progress_var
+        self.progress_percentage_var = progress_percentage_var
 
-        # Progress Bar dan Persentase
-        ctk.CTkLabel(self.parent, text="Progress:", font=("Roboto", 12),
-                     text_color=self.colors["fg"]).grid(row=10, column=0, sticky="w", padx=10, pady=(10, 0))
+        # Progress Bar
         self.progress_frame = ctk.CTkFrame(self.parent, fg_color="transparent")
-        self.progress_frame.grid(row=11, column=0, columnspan=2, sticky="ew", padx=10, pady=5)
-        self.progress_frame.grid_columnconfigure(0, weight=1)
-        self.progress_var = ctk.DoubleVar(value=0.0)
-        self.progress_bar = ctk.CTkProgressBar(self.progress_frame, variable=self.progress_var,
-                                               progress_color="#22C55E", fg_color=self.colors["entry_bg"],
-                                               height=20, width=600, corner_radius=10)  # Perpanjang progress bar
-        self.progress_bar.grid(row=0, column=0, sticky="ew", padx=(0, 10))  # Memanjang dari kiri ke kanan
-        self.progress_percentage_var = ctk.StringVar(value="0%")
-        self.progress_percentage_label = ctk.CTkLabel(self.progress_frame, textvariable=self.progress_percentage_var,
-                                                      font=("Roboto", 12, "bold"), text_color=self.colors["fg"])
-        self.progress_percentage_label.grid(row=0, column=1)
+        self.progress_frame.grid(row=10, column=0, columnspan=2, sticky="ew", padx=10, pady=(0, 10))
+
+        ctk.CTkLabel(self.progress_frame, text="Progress:", font=("Roboto", 12),
+                     text_color=self.colors["fg"]).grid(row=0, column=0, sticky="w", pady=(0, 5))
+
+        # Konfigurasi CTkProgressBar tanpa variable, sesuaikan width untuk ukuran jendela baru
+        self.progress_bar = ctk.CTkProgressBar(self.progress_frame,
+                                               progress_color="#4CAF50", fg_color=self.colors["entry_bg"],
+                                               width=350, height=15, corner_radius=10)  # Sesuaikan width dari 500 ke 350
+        self.progress_bar.set(0)  # Set nilai awal ke 0
+        self.progress_bar.grid(row=1, column=0, sticky="ew", padx=(0, 10))
+
+        # Label persentase
+        ctk.CTkLabel(self.progress_frame, textvariable=self.progress_percentage_var, font=("Roboto", 12),
+                     text_color=self.colors["fg"]).grid(row=1, column=1)
+
+    def set_progress(self, value):
+        """Mengatur nilai progress bar secara langsung (skala 0 hingga 1)."""
+        self.progress_bar.set(value)
+        self.parent.update_idletasks()
 
     def update_theme(self, colors):
         self.colors = colors
-        for child in self.parent.winfo_children():
+        for child in self.progress_frame.winfo_children():
             if isinstance(child, ctk.CTkLabel):
                 child.configure(text_color=self.colors["fg"])
-        self.progress_frame.configure(fg_color="transparent")
-        self.progress_bar.configure(fg_color=self.colors["entry_bg"])
-        # Atur warna teks persentase berdasarkan mode
-        if self.colors["fg"] == "#000000":  # Mode light
-            self.progress_percentage_label.configure(text_color="#333333")  # Abu-abu gelap untuk kontras
-        else:  # Mode dark
-            self.progress_percentage_label.configure(text_color=self.colors["fg"])
+        self.progress_bar.configure(fg_color=self.colors["entry_bg"], progress_color="#4CAF50")

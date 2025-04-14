@@ -9,12 +9,12 @@ class OutputLocationComponent:
 
         # Lokasi Output
         self.output_location_frame = ctk.CTkFrame(self.parent, fg_color="transparent")
-        self.output_location_frame.grid(row=13, column=0, columnspan=2, sticky="ew", padx=10, pady=(10, 0))
+        self.output_location_frame.grid(row=13, column=0, columnspan=2, sticky="ew", padx=10, pady=(20, 0))  # Tambah padding vertikal (pady)
         self.output_location_frame.grid_columnconfigure(0, weight=1)
         self.output_location_var = ctk.StringVar(value="Hasil disimpan di: -")
         self.output_location_label = ctk.CTkLabel(self.output_location_frame, textvariable=self.output_location_var,
                                                   font=("Roboto", 12), text_color=self.colors["fg"],
-                                                  wraplength=500)
+                                                  wraplength=600)  # Kurangi wraplength menjadi 600
         self.output_location_label.grid(row=0, column=0, sticky="w")
         self.open_output_btn = ctk.CTkButton(self.output_location_frame, text="Buka Folder Hasil", command=self.open_output_folder,
                                              fg_color="#1E3A8A", text_color="#FFFFFF",

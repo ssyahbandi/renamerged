@@ -1,6 +1,9 @@
 import os
-from src.utils import log_message, Fore
-from src.pdf_utils import validate_pdf, extract_info_from_pdf, generate_filename, copy_file_with_unique_name
+from src.utils.utils import log_message, Fore
+from src.pdf.pdf_utils import validate_pdf, extract_info_from_pdf, generate_filename, copy_file_with_unique_name
+
+# Debugging: Pastikan impor copy_file_with_unique_name berhasil
+log_message("Debug: Impor copy_file_with_unique_name berhasil", Fore.CYAN)
 
 def process_pdfs(input_directory, output_directory=None, progress_callback=None, log_callback=None, settings=None):
     """Memproses file PDF dengan mode Rename Saja."""
@@ -16,8 +19,11 @@ def process_pdfs(input_directory, output_directory=None, progress_callback=None,
     # Inisialisasi variabel statistik
     processed_files = 0
     error_files = 0
-    renamed_files = 0
-    merged_files = 0  # Selalu 0 karena tidak ada merge
+    renamed_files = 0  # Jumlah file yang hanya diganti nama
+    merged_files = 0   # Jumlah file yang diganti nama dan digabungkan (0 dalam mode ini)
+
+    # Ambil urutan komponen dari pengaturan
+    component_order = settings.get("component_order", None)
 
     # Proses setiap file secara independen
     for filename in pdf_files:
@@ -39,7 +45,7 @@ def process_pdfs(input_directory, output_directory=None, progress_callback=None,
             os.makedirs(idtku_folder, exist_ok=True)
 
             # Buat nama file berdasarkan pengaturan
-            new_filename = generate_filename(partner_name, faktur_number, date, reference, settings)
+            new_filename = generate_filename(partner_name, faktur_number, date, reference, settings, component_order)
             destination_path = os.path.join(idtku_folder, new_filename)
 
             # Salin file dengan nama unik
@@ -51,21 +57,28 @@ def process_pdfs(input_directory, output_directory=None, progress_callback=None,
 
         processed_files += 1
         if progress_callback:
-            progress_callback("reading", processed_files, total_files)
+            progress_callback("reading", processed_files, total_files, 0, 0)
 
-    # Tahap 2: Finalisasi
+    # Hitung total file yang akan difinalisasi
+    total_to_finalize = renamed_files  # Jumlah file yang berhasil diganti nama
+    processed_files_for_finalizing = 0
+
+    # Tahap 2: Finalisasi (simulasi pemindahan file)
     if progress_callback:
-        progress_callback("finalizing", 0, 1)
+        progress_callback("finalizing", 0, total_files, 0, total_to_finalize)
+
+    # Simulasi finalisasi untuk setiap file yang diganti nama
+    for _ in range(total_to_finalize):
+        processed_files_for_finalizing += 1
+        if progress_callback:
+            progress_callback("finalizing", processed_files_for_finalizing, total_files, 0, total_to_finalize)
 
     # Log hasil akhir
     log_message("\n📊 Hasil Akhir:", Fore.CYAN, log_callback=log_callback)
     log_message(f"📝 Total file diproses   : {total_files}", Fore.CYAN, log_callback=log_callback)
-    log_message(f"📂 File hanya dipindahkan: {renamed_files}", Fore.BLUE, log_callback=log_callback)
-    log_message(f"✅ File yang digabung    : {merged_files}", Fore.GREEN, log_callback=log_callback)
+    log_message(f"📂 File yang hanya diganti nama: {renamed_files}", Fore.BLUE, log_callback=log_callback)
+    log_message(f"✅ File yang diganti nama dan digabung: {merged_files}", Fore.GREEN, log_callback=log_callback)
     log_message(f"❌ Total error           : {error_files}\n", Fore.RED, log_callback=log_callback)
     log_message("✨ Selesai", Fore.GREEN, log_callback=log_callback)
-
-    if progress_callback:
-        progress_callback("finalizing", 1, 1)
 
     return total_files, renamed_files, merged_files, error_files
