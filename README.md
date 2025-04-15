@@ -106,11 +106,11 @@ Saya sangat terbuka untuk masukan. Jika Anda punya ide fitur baru (misalnya, sor
 ## Changelog
 
 ### Versi 2.0.1 (14/04/2025)
-- GUI: Sekarang ukuran jendela utama menjadi 1000x850 untuk memberikan tampilan yang lebih ringkas dan proporsional
-- GUI: Lebar CTkProgressBar disesuaikan dari 500 menjadi 350 untuk menyesuaikan dengan ukuran jendela yang baru (progress_bar.py).
-- GUI: Ditambahkan jeda waktu time.sleep(0.05) di progress_callback untuk memperlambat pembaruan visual progress bar agar lebih halus (process_button.py).
-- GUI: Pembaruan progress di tahap "processing" dan "finalizing" dilakukan per file individual untuk langkah yang lebih kecil (pdf_processor.py, pdf_processor_rename.py).
-- GUI: Menambahkan log debugging di progress_callback untuk mencatat nilai progress di setiap tahap (process_button.py).
+- GUI: Sekarang ukuran jendela utama menjadi 1000x850 untuk memberikan tampilan yang lebih ringkas dan proporsional.
+- GUI: Lebar Progress Bar disesuaikan dari 500 menjadi 350 untuk menyesuaikan dengan ukuran jendela yang baru.
+- GUI: Ditambahkan jeda waktu time.sleep(0.05) di progress_callback untuk memperlambat pembaruan visual progress bar agar lebih halus.
+- GUI: Pembaruan progress di tahap "processing" dan "finalizing" dilakukan per file individual untuk langkah yang lebih kecil.
+- GUI: Menambahkan log debugging di progress_callback untuk mencatat nilai progress di setiap tahap.
 
 ### Versi 2.0.0 (11/04/2025)
 - Fitur Baru: Sekarang bisa memilih antara "Rename Saja" (tanpa merge) atau "Rename dan Merge".  
