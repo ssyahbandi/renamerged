@@ -18,9 +18,9 @@ def run_gui():
     # Buat jendela utama
     root = ctk.CTk()
     root.title("RENAMERGED - Rename & Merge PDFs")
-    root.geometry("1000x850")  # Ukuran jendela yang baru
+    root.geometry("825x900")  # Ukuran jendela yang baru
     root.resizable(True, True)
-    root.minsize(1000, 850)  # Ukuran minimum yang baru
+    root.minsize(825, 900)  # Ukuran minimum yang baru
     
     # Inisialisasi aplikasi
     app = RenamergedGUI(root)
@@ -67,7 +67,8 @@ class RenamergedGUI:
         self.main_frame.grid_rowconfigure(12, weight=0)  # Baris kosong (padding)
         self.main_frame.grid_rowconfigure(13, weight=0)  # Baris lokasi output
         self.main_frame.grid_rowconfigure(14, weight=0)  # Baris tombol proses
-        self.main_frame.grid_rowconfigure(15, weight=2)  # Berikan sisa ruang kosong di bawah
+        self.main_frame.grid_rowconfigure(15, weight=1)  # Berikan sisa ruang kosong di bawah
+        self.main_frame.grid_rowconfigure(16, weight=0)  # Baris untuk copyright
         self.main_frame.grid_columnconfigure(0, weight=1)
         self.main_frame.grid_columnconfigure(1, weight=0)
 
@@ -82,8 +83,13 @@ class RenamergedGUI:
         self.process_button = ProcessButtonComponent(
             self.main_frame, self.colors, self.input_path_var, self.output_path_var,
             self.mode_var, self.settings, self.progress_var, self.progress_percentage_var,
-            self.statistics, self.output_location, self.mode_selection, self  # Teruskan instance RenamergedGUI
+            self.statistics, self.output_location, self.mode_selection, self
         )
+
+        # Tambahkan label copyright di bagian bawah
+        self.copyright_label = ctk.CTkLabel(self.main_frame, text="© 2025 Renamerged - All Rights Reserved",
+                                            font=("Roboto", 10), text_color=self.colors["fg"])
+        self.copyright_label.grid(row=16, column=0, columnspan=2, pady=(10, 0), sticky="s")
 
         # Bind tombol panah ke root window untuk mendukung geser komponen
         self.root.bind("<Left>", lambda event: self.mode_selection.move_left(event))
@@ -106,6 +112,7 @@ class RenamergedGUI:
         self.statistics.update_theme(self.colors)
         self.output_location.update_theme(self.colors)
         self.process_button.update_theme(self.colors)
+        self.copyright_label.configure(text_color=self.colors["fg"])
 
 if __name__ == "__main__":
     run_gui()
