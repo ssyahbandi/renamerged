@@ -53,20 +53,20 @@ Ada dua pilihan untuk Anda:
 Menggunakan Renamerged sangat mudah berkat GUI-nya. Ikuti langkah berikut:  
 1. Download `renamerged.exe` dari [Releases](https://github.com/ssyahbandi/PDF_Renamer/releases) atau langsung di [Sini](https://github.com/ssyahbandi/PDF_Renamer/releases/download/v2.0.0/renamerged.exe).  
 2. Klik dua kali `renamerged.exe` untuk menjalankan aplikasi.  
-  - Catatan: Jika muncul pop-up "Windows protected your PC", klik "More info" lalu pilih "Run anyway" untuk melanjutkan. Ini terjadi karena aplikasi belum ditandatangani secara resmi oleh Windows, tetapi sangat aman digunakan.  
+    - Catatan: Jika muncul pop-up "Windows protected your PC", klik "More info" lalu pilih "Run anyway" untuk melanjutkan. Ini terjadi karena aplikasi belum ditandatangani secara resmi oleh Windows, tetapi sangat aman digunakan.  
 3. Di jendela yang muncul:  
-  - Pilih Mode Pemrosesan dari dropdown: "Rename Saja" (hanya rename) atau "Rename dan Merge" (rename + merge file yang sama).  
-  - Jika memilih "Rename Saja", centang komponen nama file yang diinginkan (Nama Lawan Transaksi, Tanggal Faktur Pajak, Referensi, Nomor Faktur Pajak).  
-  - Klik "Browse" di bagian "Pilih Folder Input PDF", lalu pilih folder tempat file PDF Anda disimpan (contoh: `C:/Dokumen/PDF`).  
-  - Lihat pratinjau daftar file PDF yang terdeteksi di bawah "Daftar File PDF".  
-  - (Opsional) Klik "Browse" untuk pilih folder output tempat hasil disimpan. Jika tidak dipilih, hasil akan disimpan di `ProcessedPDFs` di folder input.  
-  - (Opsional) Klik "Ganti Tema" untuk beralih antara dark dan light mode sesuai preferensi visual Anda.  
+    - Pilih Mode Pemrosesan dari dropdown: "Rename Saja" (hanya rename) atau "Rename dan Merge" (rename + merge file yang sama).  
+    - Jika memilih "Rename Saja", centang komponen nama file yang diinginkan (Nama Lawan Transaksi, Tanggal Faktur Pajak, Referensi, Nomor Faktur Pajak).  
+    - Klik "Browse" di bagian "Pilih Folder Input PDF", lalu pilih folder tempat file PDF Anda disimpan (contoh: `C:/Dokumen/PDF`).  
+    - Lihat pratinjau daftar file PDF yang terdeteksi di bawah "Daftar File PDF".  
+    - (Opsional) Klik "Browse" untuk pilih folder output tempat hasil disimpan. Jika tidak dipilih, hasil akan disimpan di `ProcessedPDFs` di folder input.  
+    - (Opsional) Klik "Ganti Tema" untuk beralih antara dark dan light mode sesuai preferensi visual Anda.  
 4. Klik tombol "Proses" untuk memulai. Progress bar akan menunjukkan kemajuan proses.  
 5. Tunggu hingga proses selesai. Renamerged akan:  
-  - Memvalidasi file PDF untuk memastikan tidak ada file korup.  
-  - Rename file PDF berdasarkan komponen yang dipilih (jika mode "Rename Saja") atau Nama Lawan Transaksi (jika mode "Rename dan Merge").  
-  - Merge file PDF dengan ID TKU Penjual dan Nama Lawan Transaksi yang sama (jika mode "Rename dan Merge").  
-  - Menyimpan hasil di folder yang terorganisir berdasarkan ID TKU Penjual.  
+    - Memvalidasi file PDF untuk memastikan tidak ada file korup.  
+    - Rename file PDF berdasarkan komponen yang dipilih (jika mode "Rename Saja") atau Nama Lawan Transaksi (jika mode "Rename dan Merge").  
+    - Merge file PDF dengan ID TKU Penjual dan Nama Lawan Transaksi yang sama (jika mode "Rename dan Merge").  
+    - Menyimpan hasil di folder yang terorganisir berdasarkan ID TKU Penjual.  
 6. Selesai! Klik "Buka Folder Hasil" untuk melihat hasilnya. Semua PDF Anda sudah rapi terorganisir.
 
 ## Contoh Penggunaan
